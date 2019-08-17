@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<!-- Generated using weaver: https://github.com/davidsiaw/weaver -->
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Astrobunny's Wiki</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../font-awesome/css/font-awesome.css" rel="stylesheet">
+    <link href="../css/plugins/iCheck/custom.css" rel="stylesheet">
+
+    	<link href="../css/style.css" rel="stylesheet">
+
+
+    <link href="../css/animate.css" rel="stylesheet">
+    
+
+
+
+
+</head>
+
+<body class='top-navigation'>
+
+<div id="background" style="z-index: -999; position:absolute; left:0px; right:0px; width:100%; height:100%">
+
+</div>
+
+<div id="content" style="z-index: 0">
+
+	<div id="wrapper">
+
+        <div id="page-wrapper" class="gray-bg">
+	        <div class="row border-bottom white-bg">
+
+				<nav class="navbar navbar-static-top" role="navigation">
+	                <button aria-controls="navbar" aria-expanded="false" data-target="#navbar" data-toggle="collapse" class="navbar-toggle collapsed" type="button">
+	                    <i class="fa fa-reorder"></i>
+	                </button>
+
+
+		            <div class="navbar-collapse collapse" id="navbar">
+		                <ul class="nav navbar-nav">
+<li ><a href="/"><span class="nav-label"><i class="fa fa-home"></i>Home</span></a></li><li ><a href="/meta/all_pages"><span class="nav-label"><i class="fa fa-list"></i>All pages</span></a></li>
+		                </ul>
+		                <ul class="nav navbar-top-links navbar-right">
+
+		                </ul>
+		            </div>
+
+
+
+				</nav>
+			</div>
+
+
+	        <div class="wrapper-content">
+	            <div class="container">
+	<div class="row " style="">
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+			<preview  /><h1><h2></h2></h1><h1>Astrobunny&#39;s Wiki</h1>
+
+		</div>
+
+	</div>
+	<div class="row " style="">
+		<div class="col-xs-12 col-sm-12 col-md-9 col-lg-9 ">
+			<div class="ibox float-e-margins"><div class="ibox-title"><h5><h2>Mruby</h2></h5><div class="ibox-tools"></div></div><div class="ibox-content" style="min-height: px"><h1>mruby page</h1>
+
+<p>Some notes on the mruby C API</p>
+
+<hr>
+
+<h2>Common things</h2>
+
+<p><code>MRB_API</code> - This declares functions that are meant to be accessed externally. They seem unlikely to change. They are also exported when built dynamically. Other functions in the headers but not <code>MRB_API</code> seem to be subject to change at any time.</p>
+
+<p><code>mrb_sym</code> - This datatype basically means Ruby symbol <code>:something</code>. You can easily get this by using the <code>mrb_inter_lit(mrb, &quot;symbol&quot;)</code>. This is the equivalent of <code>#to_sym</code></p>
+
+<p><code>mrb_value</code> - This is Ruby&#39;s boxed type. This type is used nearly everywhere where different types can be accepted. See below for more information about how to box and unbox data.</p>
+
+<hr>
+
+<h2>mruby Data types and C Data types</h2>
+
+<h4><code>RBasic</code></h4>
+
+<p>Possibly BasicObject. Not sure. Every other R* type can cast to this, since it only consists of the <code>MRB_OBJECT_HEADER</code></p>
+
+<h4><code>RObject</code></h4>
+
+<p>The mruby object. The difference between this and <code>RBasic</code> is this one can have instance variables.</p>
+
+<h4><code>RArray</code></h4>
+
+<p>Represents an array. You cannot actually cast this to <code>RObject</code>! Its got no space for instance variables.</p>
+
+<h4><code>RClass</code></h4>
+
+<p>Represents a class.</p>
+
+<h4><code>RCptr</code></h4>
+
+<p>Not sure. C Pointer?? Declared in <code>boxing_word.h</code>.</p>
+
+<h4><code>RData</code></h4>
+
+<p>Extended version of the <code>RObject</code> that can contain custom data.</p>
+
+<h4><code>REnv</code></h4>
+
+<p>Not sure what this is. Declared in <code>proc.h</code></p>
+
+<h4><code>RException</code></h4>
+
+<p>Exception object. Its exactly the same as an <code>RObject</code>.</p>
+
+<h4><code>RProc</code></h4>
+
+<p>A Ruby proc. Procs in Ruby only represent a list of instructions. You can literally insert these anywhere and they can freely change control flow within the scope because they have no scope themselves. You cannot cast this to <code>RObject</code>. It is made of <code>mrb_irep</code>, a somewhat mysterious object to me right now.</p>
+
+<h4><code>RBreak</code></h4>
+
+<p>Breakpoint?  Not sure</p>
+
+<h4><code>RFiber</code></h4>
+
+<p>Don&#39;t know what a fiber is. Declared in <code>object.h</code></p>
+
+<h4><code>RFloat</code></h4>
+
+<p>Not sure why this is a thing. Declared in <code>boxing_word.h</code>.</p>
+
+<h4><code>RHash</code></h4>
+
+<p>A Ruby hash. This is an <code>RObject</code> plus a hashtable.</p>
+
+<h4><code>RRange</code></h4>
+
+<h4><code>RString</code></h4>
+
+<hr>
+
+<h2>Functions (Variables)</h2>
+
+<h4><code>MRB_API mrb_value mrb_gv_get(mrb_state *mrb, mrb_sym sym);</code></h4>
+
+<p>Gets a global variable. </p>
+
+<ul>
+<li><code>mrb</code> is the state.</li>
+<li><code>sym</code> is the symbol of the global variable. You can actually pass syms that do not start with <code>$</code>. However you cannot access them in ruby, because <code>$</code> tells the interpreter its a global variable. Could be good for hiding things but could also be subject to change.</li>
+</ul>
+
+<h4><code>MRB_API void mrb_gv_set(mrb_state *mrb, mrb_sym sym, mrb_value val);</code></h4>
+
+<p>Sets a global variable</p>
+
+<ul>
+<li><code>mrb</code> is the state.</li>
+<li><code>sym</code> same as <code>mrb_gv_get</code>.</li>
+<li><code>val</code> the value to set the variable to.</li>
+</ul>
+
+<h4><code>MRB_API void mrb_gv_remove(mrb_state *mrb, mrb_sym sym);</code></h4>
+
+<p>Removes a global variable. Actually not sure what happens when theres no global.</p>
+
+<hr>
+
+<h4><code>MRB_API mrb_value mrb_const_get(mrb_state*, mrb_value, mrb_sym);</code></h4>
+
+<h4><code>MRB_API void mrb_const_set(mrb_state*, mrb_value, mrb_sym, mrb_value);</code></h4>
+
+<h4><code>MRB_API mrb_bool mrb_const_defined(mrb_state*, mrb_value, mrb_sym);</code></h4>
+
+<h4><code>MRB_API mrb_bool mrb_const_defined_at(mrb_state *mrb, mrb_value mod, mrb_sym id);</code></h4>
+
+<h4><code>MRB_API void mrb_const_remove(mrb_state*, mrb_value, mrb_sym);</code></h4>
+
+<hr>
+
+<h4><code>MRB_API mrb_value mrb_iv_get(mrb_state *mrb, mrb_value obj, mrb_sym sym);</code></h4>
+
+<h4><code>MRB_API void mrb_iv_set(mrb_state *mrb, mrb_value obj, mrb_sym sym, mrb_value v);</code></h4>
+
+<h4><code>MRB_API mrb_value mrb_obj_iv_get(mrb_state *mrb, struct RObject *obj, mrb_sym sym);</code></h4>
+
+<h4><code>MRB_API void mrb_obj_iv_set(mrb_state *mrb, struct RObject *obj, mrb_sym sym, mrb_value v);</code></h4>
+
+<h4><code>MRB_API mrb_bool mrb_iv_name_sym_p(mrb_state *mrb, mrb_sym sym);</code></h4>
+
+<h4><code>MRB_API void mrb_iv_name_sym_check(mrb_state *mrb, mrb_sym sym);</code></h4>
+
+<h4><code>MRB_API mrb_bool mrb_obj_iv_defined(mrb_state *mrb, struct RObject *obj, mrb_sym sym);</code></h4>
+
+<h4><code>MRB_API mrb_bool mrb_iv_defined(mrb_state*, mrb_value, mrb_sym);</code></h4>
+
+<h4><code>MRB_API mrb_value mrb_iv_remove(mrb_state *mrb, mrb_value obj, mrb_sym sym);</code></h4>
+
+<h4><code>MRB_API void mrb_iv_copy(mrb_state *mrb, mrb_value dst, mrb_value src);</code></h4>
+
+<hr>
+
+<h4><code>MRB_API mrb_value mrb_cv_get(mrb_state *mrb, mrb_value mod, mrb_sym sym);</code></h4>
+
+<h4><code>MRB_API void mrb_cv_set(mrb_state *mrb, mrb_value mod, mrb_sym sym, mrb_value v);</code></h4>
+
+<h4><code>MRB_API void mrb_mod_cv_set(mrb_state *mrb, struct RClass * c, mrb_sym sym, mrb_value v);</code></h4>
+
+<h4><code>MRB_API mrb_bool mrb_cv_defined(mrb_state *mrb, mrb_value mod, mrb_sym sym);</code></h4>
+
+<hr>
+
+<h2>Functions (Boxing)</h2>
+
+<h3>Simple Types</h3>
+
+<h4><code>MRB_INLINE mrb_value mrb_nil_value(void)</code></h4>
+
+<h4><code>MRB_INLINE mrb_value mrb_false_value(void)</code></h4>
+
+<h4><code>MRB_INLINE mrb_value mrb_true_value(void)</code></h4>
+
+<h4><code>MRB_INLINE mrb_value mrb_bool_value(mrb_bool boolean)</code></h4>
+
+<h4><code>MRB_INLINE mrb_value mrb_undef_value(void)</code></h4>
+</div></div><h1><h2></h2></h1>
+		</div>
+		<div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 ">
+			<h1><h2></h2></h1><h3>Navigation</h3>
+
+<ul>
+<li><a href="/home" target="_top" style="color: blue;">Home</a></li>
+<li><a href="/mruby" target="_top" style="color: blue;">Mruby</a></li>
+</ul>
+
+		</div>
+
+	</div>
+	<div class="row " style="">
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+			<preview  /><h1><h2></h2></h1><p>The astrobunny wiki o.o</p>
+
+		</div>
+
+	</div>
+
+	            </div>
+			</div>
+		</div>
+	</div>
+
+</div>
+
+    <!-- Mainly scripts -->
+    <script src="../js/jquery-3.1.1.min.js"></script>
+    <script src="../js/jquery-ui-1.10.4.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <script src="../js/plugins/metisMenu/jquery.metisMenu.js"></script>
+    <script src="../js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			asciimath2jax: {
+				delimiters: [['$$$MATH$$$','$$$ENDMATH$$$']]
+			}
+		});
+	</script>
+    <script src="../js/MathJax/MathJax.js?config=AM_HTMLorMML-full" async></script>
+
+
+
+
+    <!-- Custom and plugin javascript -->
+    <script src="../js/weaver.js"></script>
+    <script src='../js/plugins/pace/pace.min.js'></script>
+
+    <script>
+
+
+
+$( document ).ready(function() {
+
+
+
+});
+    </script>
+
+    
+
+</body>
+
+</html>
+
